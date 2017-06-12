@@ -57,7 +57,7 @@ bool RangeSensor::readPacket(int timeout)
         if((~msg[i] | msg[i+1]) & 0b10000000)
             throw std::runtime_error("extractPacket has extracted an invalid package!");
         else
-            range_value.assign(io2,measurementILD1402(&msg[i/2]));
+            range_value.assign(i/2,measurementILD1402(&msg[i]));
 
 
     return true;
