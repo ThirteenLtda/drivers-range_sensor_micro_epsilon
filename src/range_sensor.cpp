@@ -12,7 +12,7 @@ inline uint32_t get_word(const uint8_t* buffer){
 }
 
 RangeSensor::RangeSensor():
-    iodrivers_base::Driver(10000),range_value(0),smr(0.2),mr(0.6)
+    iodrivers_base::Driver(1024),range_value(0),smr(0.2),mr(0.6)
 {
 }
 
@@ -32,9 +32,16 @@ void RangeSensor::close()
     Driver::close();
 }
 
-float RangeSensor::measurementILD1402(const uint8_t* dvo){
-    float dvalue = (dvo[0] & 0b01111111)*(1<<7) + dvo[1];
-    return  ( dvalue*1.02/16368 - 0.01)*mr + smr;
+uint16_t RangeSensor::raw_dvo(const uint8_t* buffer){
+    return (buffer[0] & 0b01111111)*(1<<7) + buffer[1];
+}
+
+float RangeSensor::measurementILD1402(uint16_t dvo){
+    return  (((float)dvo)*1.02/16368 - 0.01)*mr + smr;
+}
+
+float RangeSensor::measurementILD1402(const uint8_t* buffer){
+    return  measurementILD1402(raw_dvo(buffer));
 }
 
 bool RangeSensor::readPacket(int timeout)
@@ -51,38 +58,52 @@ bool RangeSensor::readPacket(int timeout)
 
     LOG_DEBUG_S << "reading packet with "<< size/2 << " measurements";
 
-    range_value.resize(size/2);
+    range_value.clear();
+    range_value.reserve(size/2);
 
     for(int i = 0; i < size-1; i+=2)
         if((~msg[i] | msg[i+1]) & 0b10000000)
             throw std::runtime_error("extractPacket has extracted an invalid package!");
-        else
-            range_value.assign(i/2,measurementILD1402(&msg[i]));
+        else{
+            uint16_t dvo = raw_dvo(&msg[i]);
+            if(dvo > 16367)
+                continue;
+            range_value.push_back(measurementILD1402(dvo));
+        }
 
+    if(range_value.size() > 0)
+        return true;
 
-    return true;
+    return false;
 }
 
 int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
 {
-    if(buffer_size < 2) //throw std::runtime_error("Packet too small to contain range values.");
+    if(buffer_size < 2){ //throw std::runtime_error("Packet too small to contain range values.");
+        //std::cout << "Packet too small to contain range values. "<< std::endl;
         return 0;
+    }
 
     int start = find_first(buffer,buffer_size,&REPLY_START);
     int end = find_first(buffer,buffer_size,&REPLY_END);
 
     if (end < start)
     {
+        //std::cout << "Corrupted end < start. "<< std::endl;
         LOG_WARN_S << "Corrupted packet: Skipping " << end << " bytes because no start was found.";
         return -end;
     }
 
     if (start == 0)
     {
-        if((size_t) end == buffer_size)
+        if((size_t) end == buffer_size){
+            //std::cout << "Found start of Packet, waiting end.. "<< std::endl;
+            LOG_DEBUG_S << "Found start of Packet, waiting end.. "<< end;
             return 0;
+        }
         else
         {
+            //std::cout << "Found packet of type. "<< std::endl;
             LOG_DEBUG_S << "Found packet of type "<< buffer[1] << " and size "<< end;
             return end;
         }
@@ -90,6 +111,7 @@ int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
 
     if(~buffer[0] & 0b10000000)
     {
+        //std::cout << "Corrupted, bad first byte. "<< std::endl;
         LOG_WARN_S << "Corrupted packet: Expected first byte measurement value.";
         return -1;
     }

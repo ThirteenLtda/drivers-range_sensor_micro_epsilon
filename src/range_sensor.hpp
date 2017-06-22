@@ -14,11 +14,15 @@ namespace range_sensor_micro_epsilon
     class RangeSensor: public iodrivers_base::Driver
     {
     private:
-        uint8_t msg[1000];
+        uint8_t msg[1024];
         uint16_t dvalue;
         std::vector<float> range_value;
 
     public:
+        const std::vector<float> &getRange() const{
+            return range_value;
+        }
+
         float smr;//start measuring range
         float mr;//measuring range
         /**
@@ -32,6 +36,8 @@ namespace range_sensor_micro_epsilon
         void read();
         void openSerial(std::string const& port, int baudrate = 115200);
         float measurementILD1402(const uint8_t* dvo);
+        float measurementILD1402(uint16_t dvo);
+        uint16_t raw_dvo(const uint8_t* buffer);
         void close();
         bool readPacket(int timeout);
         int extractPacket(const uint8_t *buffer, size_t buffer_size) const;
