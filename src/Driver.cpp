@@ -59,10 +59,7 @@ bool RangeSensor::readPacket(int timeout)
             range_value.push_back(measurementILD1402(dvo));
         }
 
-    if(range_value.size() > 0)
-        return true;
-
-    return false;
+    return !range_value.empty();
 }
 
 int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
