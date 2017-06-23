@@ -68,6 +68,13 @@ BOOST_AUTO_TEST_CASE(stream_of_measurements_ending_with_bad_bit)
     BOOST_CHECK_EQUAL(6, laser.extractPacket(buffer,10));
 }
 
+BOOST_AUTO_TEST_CASE(stream_of_measurements_with_two_leading_ones)
+{
+    RangeSensor laser;
+    const uint8_t buffer[] = {0b10010111, 0b10111000, 0b00111000};
+    BOOST_CHECK_EQUAL(-1, laser.extractPacket(buffer,3));
+}
+
 BOOST_AUTO_TEST_CASE(complete_stream_of_measurements)
 {
     RangeSensor laser;

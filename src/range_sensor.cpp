@@ -109,20 +109,19 @@ int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
         }
     }
 
-    if(~buffer[0] & 0b10000000)
-    {
-        //std::cout << "Corrupted, bad first byte. "<< std::endl;
-        LOG_WARN_S << "Corrupted packet: Expected first byte measurement value.";
-        return -1;
-    }
-
     int i;
     //Find full stream of values
     for(i = 0; i < start-1; i+=2)
         if((~buffer[i] | buffer[i+1]) & 0b10000000)
             break;
 
-    return i;
+    if (i == 0)
+    {
+        LOG_WARN_S << "Corrupted packet: didn't find a one followed by a zero";
+        return -1;
+    }
+    else
+        return i;
 }
 
 int range_sensor_micro_epsilon::find_first(const uint8_t *buffer, size_t buffer_size, const uint32_t *cmd, int start_at, size_t cmd_size){
