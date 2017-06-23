@@ -1,6 +1,6 @@
 #include <boost/test/unit_test.hpp>
 #include <range_sensor_micro_epsilon/packet_types.hpp>
-#include <range_sensor_micro_epsilon/range_sensor.hpp>
+#include <range_sensor_micro_epsilon/Driver.hpp>
 
 using namespace range_sensor_micro_epsilon;
 
