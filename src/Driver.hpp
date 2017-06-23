@@ -15,15 +15,15 @@ namespace range_sensor_micro_epsilon
     private:
         uint8_t msg[1024];
         uint16_t dvalue;
-        std::vector<float> range_value;
+        std::vector<double> range_value;
 
     public:
-        const std::vector<float> &getRange() const{
+        const std::vector<double> &getRange() const{
             return range_value;
         }
 
-        float smr;//start measuring range
-        float mr;//measuring range
+        double smr;//start measuring range
+        double mr;//measuring range
         /**
          * Basic RS422 communication for Laser Range Sensor.
          * Protocol ILD1402

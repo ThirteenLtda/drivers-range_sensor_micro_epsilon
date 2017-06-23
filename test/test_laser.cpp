@@ -4,12 +4,12 @@
 
 using namespace range_sensor_micro_epsilon;
 
-BOOST_AUTO_TEST_CASE(convert_two_bytes_to_float_distance)
+BOOST_AUTO_TEST_CASE(convert_two_bytes_to_double_distance)
 {
     RangeSensor laser;
     const uint8_t buffer[2] = {0b11010111, 0b00111000};
-    float dist = 0.68744868 * laser.mr + laser.smr;
-    BOOST_CHECK_CLOSE(dist, laser.measurementILD1402(buffer), 0.0001);
+    double dist = 0.68744868 * laser.mr + laser.smr;
+    BOOST_CHECK_CLOSE(dist, laser.rawToMeasurement(buffer), 0.0001);
 }
 
 BOOST_AUTO_TEST_CASE(wrong_first_byte)
