@@ -1,5 +1,5 @@
 #include <iostream>
-#include <range_sensor_micro_epsilon/range_sensor.hpp>
+#include <range_sensor_micro_epsilon/Driver.hpp>
 #include <unistd.h>
 #include <iomanip>
 
@@ -11,7 +11,7 @@ int main(int argc, char** argv)
     RangeSensor sensor;
     //std::cout << "Enter USB port: ";
     //std::cin >> port;
-    sensor.openSerial("serial:///dev/ttyUSB0:115200");
+    sensor.openURI("serial:///dev/ttyUSB0:115200");
 
     for(int i=0;i<20000;i++) {
         if(sensor.readPacket(1000))
