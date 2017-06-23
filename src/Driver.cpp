@@ -115,39 +115,3 @@ int range_sensor_micro_epsilon::find_first(const uint8_t *buffer, size_t buffer_
             return i+cmd_size;
     return buffer_size;
 }
-
-int range_sensor_micro_epsilon::find_last(const uint8_t *buffer, size_t buffer_size, const uint32_t *cmd, int start_at, size_t cmd_size){
-    if(start_at == 1)
-        start_at = buffer_size-cmd_size;
-    for(size_t i = start_at; i >= 0; i-- )
-        if(memcmp(&buffer[i],cmd,cmd_size) == 0)
-            return i+cmd_size;
-    return -1;
-}
-
-/*
- *
-
-
-    int start = find_last(buffer,buffer_size,&REPLY_START);
-    int end = find_last(buffer,buffer_size,&REPLY_END);
-    if( end < start )
-        throw std::runtime_error("Packet size to small or corrupted, do not contain message end.");
-    //if( end == -1 && start == -1)
-    //    end = 0;
-    if(end >= (int)buffer_size -2)
-        throw std::runtime_error("Packet does not contain trailling range values.");
-
-    if( (~buffer[buffer_size-1] & 0b10000000) && (buffer[buffer_size-2] & 0b10000000))
-    {
-
-        return 2;
-    }
-
-    if( (~buffer[buffer_size-2] & 0b10000000) && (buffer[buffer_size-3] & 0b10000000))
-    {
-        dvalue = (buffer[buffer_size-2] & 0b01111111)*(1<<7) + buffer[buffer_size-3];
-        range_value =  (((float)dvalue)*1.02/16368 - 0.01)*mr + smr;
-        return 2;
-    }
-*/
