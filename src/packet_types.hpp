@@ -2,7 +2,7 @@
 #define _PACKET_TYPES_HPP_
 #include <iodrivers_base/Driver.hpp>
 
-#define LASER_PACKET_SIZE 1024
+static const int LASER_PACKET_SIZE = 1024;
 
 namespace range_sensor_micro_epsilon {
 
