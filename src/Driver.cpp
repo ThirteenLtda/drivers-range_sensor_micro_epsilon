@@ -7,7 +7,7 @@
 using namespace std;
 using namespace range_sensor_micro_epsilon;
 
-inline uint32_t get_word(const uint8_t* buffer){
+inline uint32_t getWord(const uint8_t* buffer){
     return be32toh(*(reinterpret_cast<const uint32_t*> (buffer)));
 }
 
@@ -20,16 +20,16 @@ RangeSensor::~RangeSensor()
 {
 }
 
-uint16_t RangeSensor::raw_dvo(const uint8_t* buffer){
+uint16_t RangeSensor::rawToDVO(const uint8_t* buffer){
     return (buffer[0] & 0b01111111)*(1<<7) + buffer[1];
 }
 
-float RangeSensor::measurementILD1402(uint16_t dvo){
-    return  (((float)dvo)*1.02/16368 - 0.01)*mr + smr;
+double RangeSensor::DVOToMeasurement(uint16_t dvo){
+    return  ((static_cast<double>(dvo))*1.02/16368 - 0.01)*mr + smr;
 }
 
-float RangeSensor::measurementILD1402(const uint8_t* buffer){
-    return  measurementILD1402(raw_dvo(buffer));
+double RangeSensor::rawToMeasurement(const uint8_t* buffer){
+    return  DVOToMeasurement(rawToDVO(buffer));
 }
 
 bool RangeSensor::readPacket(int timeout)
@@ -53,10 +53,10 @@ bool RangeSensor::readPacket(int timeout)
         if((~msg[i] | msg[i+1]) & 0b10000000)
             throw std::runtime_error("extractPacket has extracted an invalid package!");
         else{
-            uint16_t dvo = raw_dvo(&msg[i]);
+            uint16_t dvo = rawToDVO(&msg[i]);
             if(dvo > 16367)
                 continue;
-            range_value.push_back(measurementILD1402(dvo));
+            range_value.push_back(DVOToMeasurement(dvo));
         }
 
     return !range_value.empty();
@@ -69,8 +69,8 @@ int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
         return 0;
     }
 
-    int start = find_first(buffer,buffer_size,&REPLY_START);
-    int end = find_first(buffer,buffer_size,&REPLY_END);
+    int start = findFirstWord(buffer,buffer_size,&REPLY_START);
+    int end = findFirstWord(buffer,buffer_size,&REPLY_END);
 
     if (end < start)
     {
@@ -109,9 +109,9 @@ int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
         return i;
 }
 
-int range_sensor_micro_epsilon::find_first(const uint8_t *buffer, size_t buffer_size, const uint32_t *cmd, int start_at, size_t cmd_size){
+int range_sensor_micro_epsilon::findFirstWord(const uint8_t *buffer, size_t buffer_size, const uint32_t *cmd, int start_at, size_t cmd_size){
     for(int i = start_at; i < (int)(buffer_size-cmd_size); i++ )
-        if(get_word(&buffer[i]) == *cmd)
+        if(getWord(&buffer[i]) == *cmd)
             return i+cmd_size;
     return buffer_size;
 }
