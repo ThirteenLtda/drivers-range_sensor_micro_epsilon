@@ -20,16 +20,8 @@ RangeSensor::~RangeSensor()
 {
 }
 
-void RangeSensor::openSerial(std::string const& port, int baudrate)
-{
-    LOG_DEBUG_S << "opening serial port: " << port << " with baudrate: " << baudrate ;
-    Driver::openSerial(port,baudrate);
 }
 
-void RangeSensor::close()
-{
-    LOG_DEBUG_S <<"closing serial port: " ;
-    Driver::close();
 }
 
 uint16_t RangeSensor::raw_dvo(const uint8_t* buffer){

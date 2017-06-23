@@ -9,9 +9,9 @@ int main(int argc, char** argv)
 {
     std::string port;
     RangeSensor sensor;
-    std::cout << "Enter USB port: ";
-    std::cin >> port;
-    sensor.openSerial(port);
+    //std::cout << "Enter USB port: ";
+    //std::cin >> port;
+    sensor.openSerial("serial:///dev/ttyUSB0:115200");
 
     for(int i=0;i<20000;i++) {
         if(sensor.readPacket(1000))
