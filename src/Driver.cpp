@@ -20,10 +20,6 @@ RangeSensor::~RangeSensor()
 {
 }
 
-}
-
-}
-
 uint16_t RangeSensor::raw_dvo(const uint8_t* buffer){
     return (buffer[0] & 0b01111111)*(1<<7) + buffer[1];
 }
