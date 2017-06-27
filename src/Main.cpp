@@ -1,5 +1,6 @@
 #include <iostream>
 #include <range_sensor_micro_epsilon/Driver.hpp>
+#include  "packet_types.hpp"
 #include <unistd.h>
 #include <iomanip>
 
@@ -35,6 +36,22 @@ int main(int argc, char** argv)
 
         }
 
+
+        std::cout << "no object detected - " << sensor.getErrors().no_object_detected << "\n"
+                  << "too close to the sensor - " << sensor.getErrors().too_close_to_the_sensor << "\n"
+                  << "too far from the sensor - " << sensor.getErrors().too_far_from_the_sensor << "\n"
+                  << "target can not be evaluated - " << sensor.getErrors().target_can_not_be_evaluated << "\n"
+                  << "target moves towards the sensor - " << sensor.getErrors().target_moves_towards_the_sensor << "\n"
+                  << "target moves away from sensor - " << sensor.getErrors().target_moves_away_from_sensor << "\n"
+                  << "unknown - " << sensor.getErrors().unknown << std::endl;
+
+        std::cout << "bad_rx = " << sensor.getStats().bad_rx << "\n"
+                  << "good_rx = " << sensor.getStats().good_rx << "\n"
+                  << "stamp = " << sensor.getStats().stamp << "\n"
+                  << "tx = " << sensor.getStats().tx << "\n"
+                  << "isValid = " << sensor.isValid() << "\n"
+                  << "hasPacket = " << sensor.hasPacket() << "\n"
+                  << "Fd = " << sensor.getFileDescriptor() << std::endl;
 
         usleep(100000);
 

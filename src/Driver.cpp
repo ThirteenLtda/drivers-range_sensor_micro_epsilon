@@ -21,6 +21,7 @@ static int findFirstWord(uint8_t const buffer[], size_t buffer_size, uint32_t cm
 RangeSensor::RangeSensor():
     iodrivers_base::Driver(1024),range_value(0),smr(0.2),mr(0.6)
 {
+    stats.clear();
 }
 
 RangeSensor::~RangeSensor()
@@ -53,13 +54,38 @@ std::vector<double> RangeSensor::readPacket(int timeout)
 
     range_value.reserve(size/2);
 
-    for(int i = 0; i < size-1; i+=2)
+    LOG_DEBUG_S << "reading packet with "<< size/2 << " measurements";
+
+    for(size_t i = 0; i < size-1; i+=2)
         if((~msg[i] | msg[i+1]) & 0b10000000)
             throw std::runtime_error("extractPacket has extracted an invalid package!");
         else{
             uint16_t dvo = rawToDVO(&msg[i]);
             if(dvo > 16367)
-                continue;
+                switch (dvo) {
+                case 16370:
+                    stats.no_object_detected += 1;
+                    continue;
+                case 16372:
+                    stats.too_close_to_the_sensor += 1;
+                    continue;
+                case 16374:
+                    stats.too_far_from_the_sensor += 1;
+                    continue;
+                case 16376:
+                    stats.target_can_not_be_evaluated += 1;
+                    continue;
+                case 16380:
+                    stats.target_moves_towards_the_sensor += 1;
+                    continue;
+                case 16382:
+                    stats.target_moves_away_from_sensor += 1;
+                    continue;
+                default:
+                    stats.unknown +=1;
+                    continue;
+                }
+
             range_value.push_back(DVOToMeasurement(dvo));
         }
 
@@ -68,10 +94,9 @@ std::vector<double> RangeSensor::readPacket(int timeout)
 
 int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
 {
-    if(buffer_size < 2){ //throw std::runtime_error("Packet too small to contain range values.");
-        //std::cout << "Packet too small to contain range values. "<< std::endl;
+
+    if(buffer_size < 2) //throw std::runtime_error("Packet too small to contain range values.");
         return 0;
-    }
 
 
     int start = findFirstWord(buffer,buffer_size,REPLY_START);
@@ -79,7 +104,6 @@ int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
 
     if (end < start)
     {
-        //std::cout << "Corrupted end < start. "<< std::endl;
         LOG_WARN_S << "Corrupted packet: Skipping " << end << " bytes because no start was found.";
         return -end;
     }
@@ -87,19 +111,18 @@ int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
     if (start == 0)
     {
         if((size_t) end == buffer_size){
-            //std::cout << "Found start of Packet, waiting end.. "<< std::endl;
             LOG_DEBUG_S << "Found start of Packet, waiting end.. "<< end;
             return 0;
         }
         else
         {
-            //std::cout << "Found packet of type. "<< std::endl;
             LOG_DEBUG_S << "Found packet of type "<< buffer[1] << " and size "<< end;
             return end;
         }
     }
 
     int i;
+
     //Find full stream of values
     for(i = 0; i < start-1; i+=2)
         if((~buffer[i] | buffer[i+1]) & 0b10000000)
@@ -114,4 +137,9 @@ int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
         return i;
 }
 
+
+void RangeSensor::openURI(const string &uri)
+{
+    //stats.clear();
+    Driver::openURI(uri);
 }

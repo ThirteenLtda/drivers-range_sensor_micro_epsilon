@@ -2,6 +2,7 @@
 #define _RANGESENSOR_RANGE_SENSOR_HPP_
 
 #include <iodrivers_base/Driver.hpp>
+#include  "packet_types.hpp"
 #include <vector>
 
 
@@ -14,11 +15,15 @@ namespace range_sensor_micro_epsilon
     private:
         uint8_t msg[1024];
         uint16_t dvalue;
+        ErrorStats stats;
         std::vector<double> range_value;
         double smr;//start measuring range
         double mr;//measuring range
 
     public:
+        const ErrorStats& getErrors() const{
+            return stats;
+        }
         double getSMR() const{
             return smr;
         }
@@ -44,6 +49,9 @@ namespace range_sensor_micro_epsilon
         std::vector<double> readPacket(int timeout);
         int extractPacket(const uint8_t *buffer, size_t buffer_size) const;
 
+
+        // Driver interface
+        void openURI(const std::string &uri);
     };
 
 } // end namespace range_sensor_micro_epsilon
