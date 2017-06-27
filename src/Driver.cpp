@@ -7,8 +7,15 @@
 using namespace std;
 using namespace range_sensor_micro_epsilon;
 
-inline uint32_t getWord(const uint8_t* buffer){
+static uint32_t getWord(const uint8_t* buffer){
     return be32toh(*(reinterpret_cast<const uint32_t*> (buffer)));
+}
+
+static int findFirstWord(uint8_t const buffer[], size_t buffer_size, uint32_t cmd, int start_at = 0){
+    for(int i = start_at; i < (int)(buffer_size-4); i++ ) //4 is word byte size
+        if(getWord(&buffer[i]) == cmd)
+            return i+4;
+    return buffer_size;
 }
 
 RangeSensor::RangeSensor():
@@ -20,7 +27,7 @@ RangeSensor::~RangeSensor()
 {
 }
 
-uint16_t RangeSensor::rawToDVO(const uint8_t* buffer){
+uint16_t RangeSensor::rawToDVO(uint8_t const buffer[]){
     return (buffer[0] & 0b01111111)*(1<<7) + buffer[1];
 }
 
@@ -28,7 +35,7 @@ double RangeSensor::DVOToMeasurement(uint16_t dvo){
     return  ((static_cast<double>(dvo))*1.02/16368 - 0.01)*mr + smr;
 }
 
-double RangeSensor::rawToMeasurement(const uint8_t* buffer){
+double RangeSensor::rawToMeasurement(uint8_t const buffer[]){
     return  DVOToMeasurement(rawToDVO(buffer));
 }
 
@@ -47,6 +54,10 @@ bool RangeSensor::readPacket(int timeout)
     LOG_DEBUG_S << "reading packet with "<< size/2 << " measurements";
 
     range_value.clear();
+
+    if(getWord(msg) == REPLY_START)
+        return range_value;
+
     range_value.reserve(size/2);
 
     for(int i = 0; i < size-1; i+=2)
@@ -69,8 +80,9 @@ int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
         return 0;
     }
 
-    int start = findFirstWord(buffer,buffer_size,&REPLY_START);
-    int end = findFirstWord(buffer,buffer_size,&REPLY_END);
+
+    int start = findFirstWord(buffer,buffer_size,REPLY_START);
+    int end = findFirstWord(buffer,buffer_size,REPLY_END);
 
     if (end < start)
     {
@@ -109,9 +121,4 @@ int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
         return i;
 }
 
-int range_sensor_micro_epsilon::findFirstWord(const uint8_t *buffer, size_t buffer_size, const uint32_t *cmd, int start_at, size_t cmd_size){
-    for(int i = start_at; i < (int)(buffer_size-cmd_size); i++ )
-        if(getWord(&buffer[i]) == *cmd)
-            return i+cmd_size;
-    return buffer_size;
 }
