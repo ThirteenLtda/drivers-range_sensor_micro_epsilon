@@ -34,9 +34,9 @@ namespace range_sensor_micro_epsilon
         void read();
         double rawToMeasurement(const uint8_t buffer[]);
         double DVOToMeasurement(uint16_t dvo);
-        bool readPacket(int timeout);
 
         uint16_t rawToDVO(const uint8_t buffer[]);
+        std::vector<double> readPacket(int timeout);
         int extractPacket(const uint8_t *buffer, size_t buffer_size) const;
 
     };

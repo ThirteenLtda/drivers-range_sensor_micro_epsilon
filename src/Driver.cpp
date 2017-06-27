@@ -39,19 +39,12 @@ double RangeSensor::rawToMeasurement(uint8_t const buffer[]){
     return  DVOToMeasurement(rawToDVO(buffer));
 }
 
-bool RangeSensor::readPacket(int timeout)
+std::vector<double> RangeSensor::readPacket(int timeout)
 {
     size_t size = Driver::readPacket(
             msg,
             LASER_PACKET_SIZE,
             base::Time::fromMilliseconds(timeout));
-    if(get_word(msg) == REPLY_START)
-        return false;
-
-    if( (size%2) != 0)
-        throw std::runtime_error("extractPacket has extracted an invalid package!");  //this should never happen
-
-    LOG_DEBUG_S << "reading packet with "<< size/2 << " measurements";
 
     range_value.clear();
 
@@ -70,7 +63,7 @@ bool RangeSensor::readPacket(int timeout)
             range_value.push_back(DVOToMeasurement(dvo));
         }
 
-    return !range_value.empty();
+    return range_value;
 }
 
 int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
