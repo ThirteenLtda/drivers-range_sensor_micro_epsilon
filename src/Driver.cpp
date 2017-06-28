@@ -27,7 +27,7 @@ RangeSensor::~RangeSensor()
 {
 }
 
-uint16_t RangeSensor::rawToDVO(uint8_t const buffer[]){
+uint16_t RangeSensor::rawToDVO(const uint8_t* buffer){
     return (buffer[0] & 0b01111111)*(1<<7) + buffer[1];
 }
 
@@ -35,7 +35,7 @@ double RangeSensor::DVOToMeasurement(uint16_t dvo){
     return  ((static_cast<double>(dvo))*1.02/16368 - 0.01)*mr + smr;
 }
 
-double RangeSensor::rawToMeasurement(uint8_t const buffer[]){
+double RangeSensor::rawToMeasurement(const uint8_t* buffer){
     return  DVOToMeasurement(rawToDVO(buffer));
 }
 
