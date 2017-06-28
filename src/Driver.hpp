@@ -13,7 +13,6 @@ namespace range_sensor_micro_epsilon
     class RangeSensor: public iodrivers_base::Driver
     {
     private:
-        uint16_t dvalue;
         uint8_t msg[LASER_PACKET_SIZE];
         ErrorStats stats;
         std::vector<double> range_value;
@@ -21,18 +20,9 @@ namespace range_sensor_micro_epsilon
         double mr;//measuring range
 
     public:
-        const ErrorStats& getErrors() const{
-            return stats;
-        }
-        double getSMR() const{
-            return smr;
-        }
-        double getMR() const{
-            return mr;
-        }
-        const std::vector<double> &getRange() const{
-            return range_value;
-        }
+        const ErrorStats& getErrors() const;
+        double getStartMeasuringRange() const;
+        double getMeasuringRange() const;
         /**
          * Basic RS422 communication for Laser Range Sensor.
          * Protocol ILD1402
@@ -40,8 +30,8 @@ namespace range_sensor_micro_epsilon
          */
         RangeSensor();
         ~RangeSensor();
+        void openURI(const std::string &uri);
 
-        void read();
         double rawToMeasurement(const uint8_t buffer[]);
         double DVOToMeasurement(uint16_t dvo);
 
@@ -49,9 +39,6 @@ namespace range_sensor_micro_epsilon
         std::vector<double> readPacket(int timeout);
         int extractPacket(const uint8_t *buffer, size_t buffer_size) const;
 
-
-        // Driver interface
-        void openURI(const std::string &uri);
     };
 
 } // end namespace range_sensor_micro_epsilon

@@ -21,7 +21,6 @@ static int findFirstWord(uint8_t const buffer[], size_t buffer_size, uint32_t cm
 RangeSensor::RangeSensor():
     iodrivers_base::Driver(LASER_PACKET_SIZE),range_value(0),smr(0.2),mr(0.6)
 {
-    stats.clear();
 }
 
 RangeSensor::~RangeSensor()
@@ -95,7 +94,7 @@ std::vector<double> RangeSensor::readPacket(int timeout)
 int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
 {
 
-    if(buffer_size < 2) //throw std::runtime_error("Packet too small to contain range values.");
+    if(buffer_size < 2)
         return 0;
 
 
@@ -140,6 +139,16 @@ int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
 
 void RangeSensor::openURI(const string &uri)
 {
-    //stats.clear();
-    Driver::openURI(uri);
+    stats.clear();
+    iodrivers_base::Driver::openURI(uri);
+}
+
+const ErrorStats& RangeSensor::getErrors() const{
+    return stats;
+}
+double RangeSensor::getStartMeasuringRange() const{
+    return smr;
+}
+double RangeSensor::getMeasuringRange() const{
+    return mr;
 }

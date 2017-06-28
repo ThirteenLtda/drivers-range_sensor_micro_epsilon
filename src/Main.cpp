@@ -8,10 +8,7 @@
 using namespace range_sensor_micro_epsilon;
 int main(int argc, char** argv)
 {
-    std::string port;
     RangeSensor sensor;
-    //std::cout << "Enter USB port: ";
-    //std::cin >> port;
     sensor.openURI("serial:///dev/ttyUSB0:115200");
 
     const int tries =   20;

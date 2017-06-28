@@ -8,7 +8,7 @@ BOOST_AUTO_TEST_CASE(convert_two_bytes_to_double_distance)
 {
     RangeSensor laser;
     const uint8_t buffer[2] = {0b11010111, 0b00111000};
-    double dist = 0.68744868 * laser.getMR() + laser.getSMR();
+    double dist = 0.68744868 * laser.getMeasuringRange() + laser.getStartMeasuringRange();
     BOOST_CHECK_CLOSE(dist, laser.rawToMeasurement(buffer), 0.0001);
 }
 
