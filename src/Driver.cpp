@@ -19,7 +19,7 @@ static int findFirstWord(uint8_t const buffer[], size_t buffer_size, uint32_t cm
 }
 
 RangeSensor::RangeSensor():
-    iodrivers_base::Driver(1024),range_value(0),smr(0.2),mr(0.6)
+    iodrivers_base::Driver(LASER_PACKET_SIZE),range_value(0),smr(0.2),mr(0.6)
 {
     stats.clear();
 }

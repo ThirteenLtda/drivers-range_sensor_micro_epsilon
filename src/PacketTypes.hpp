@@ -2,14 +2,10 @@
 #define _PACKET_TYPES_HPP_
 #include <iodrivers_base/Driver.hpp>
 
-static const int LASER_PACKET_SIZE = 1024;
 
 namespace range_sensor_micro_epsilon {
 
-enum PacketType{
-    RawValue = 0,
-    ErrorCode, Info
-};
+static const int LASER_PACKET_SIZE = 1024;
 
 struct ErrorStats{
     uint64_t no_object_detected;

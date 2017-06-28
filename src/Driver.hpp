@@ -13,8 +13,8 @@ namespace range_sensor_micro_epsilon
     class RangeSensor: public iodrivers_base::Driver
     {
     private:
-        uint8_t msg[1024];
         uint16_t dvalue;
+        uint8_t msg[LASER_PACKET_SIZE];
         ErrorStats stats;
         std::vector<double> range_value;
         double smr;//start measuring range
