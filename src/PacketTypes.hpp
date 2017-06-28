@@ -14,6 +14,7 @@ struct ErrorStats{
     uint64_t target_can_not_be_evaluated;
     uint64_t target_moves_towards_the_sensor;
     uint64_t target_moves_away_from_sensor;
+    uint64_t command_packets;
     uint64_t unknown;
     void clear(){
         no_object_detected = 0;
@@ -22,6 +23,7 @@ struct ErrorStats{
         target_can_not_be_evaluated = 0;
         target_moves_towards_the_sensor = 0;
         target_moves_away_from_sensor = 0;
+        command_packets = 0;
         unknown = 0;
     }
 };

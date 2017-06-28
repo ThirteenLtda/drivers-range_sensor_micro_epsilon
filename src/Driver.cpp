@@ -48,8 +48,10 @@ std::vector<double> RangeSensor::readPacket(int timeout)
 
     range_value.clear();
 
-    if(getWord(msg) == REPLY_START)
+    if(getWord(msg) == REPLY_START){
+        stats.command_packets += 1;
         return range_value;
+    }
 
     range_value.reserve(size/2);
 
