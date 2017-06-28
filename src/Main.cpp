@@ -1,6 +1,6 @@
 #include <iostream>
 #include <range_sensor_micro_epsilon/Driver.hpp>
-#include  "packet_types.hpp"
+#include  "PacketTypes.hpp"
 #include <unistd.h>
 #include <iomanip>
 

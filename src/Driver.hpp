@@ -2,7 +2,7 @@
 #define _RANGESENSOR_RANGE_SENSOR_HPP_
 
 #include <iodrivers_base/Driver.hpp>
-#include  "packet_types.hpp"
+#include  "PacketTypes.hpp"
 #include <vector>
 
 
