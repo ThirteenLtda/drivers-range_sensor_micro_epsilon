@@ -1,5 +1,5 @@
 #include "Driver.hpp"
-#include "packet_types.hpp"
+#include "PacketTypes.hpp"
 #include <iostream>
 #include <cstring>
 #include <base-logging/Logging.hpp>
@@ -19,16 +19,15 @@ static int findFirstWord(uint8_t const buffer[], size_t buffer_size, uint32_t cm
 }
 
 RangeSensor::RangeSensor():
-    iodrivers_base::Driver(1024),range_value(0),smr(0.2),mr(0.6)
+    iodrivers_base::Driver(LASER_PACKET_SIZE),range_value(0),smr(0.2),mr(0.6)
 {
-    stats.clear();
 }
 
 RangeSensor::~RangeSensor()
 {
 }
 
-uint16_t RangeSensor::rawToDVO(uint8_t const buffer[]){
+uint16_t RangeSensor::rawToDVO(const uint8_t* buffer){
     return (buffer[0] & 0b01111111)*(1<<7) + buffer[1];
 }
 
@@ -36,21 +35,23 @@ double RangeSensor::DVOToMeasurement(uint16_t dvo){
     return  ((static_cast<double>(dvo))*1.02/16368 - 0.01)*mr + smr;
 }
 
-double RangeSensor::rawToMeasurement(uint8_t const buffer[]){
+double RangeSensor::rawToMeasurement(const uint8_t* buffer){
     return  DVOToMeasurement(rawToDVO(buffer));
 }
 
-std::vector<double> RangeSensor::readPacket(int timeout)
+std::vector<double> RangeSensor::readRanges(int timeout)
 {
-    size_t size = Driver::readPacket(
+    size_t size = readPacket(
             msg,
             LASER_PACKET_SIZE,
             base::Time::fromMilliseconds(timeout));
 
     range_value.clear();
 
-    if(getWord(msg) == REPLY_START)
+    if(getWord(msg) == REPLY_START){
+        stats.command_packets += 1;
         return range_value;
+    }
 
     range_value.reserve(size/2);
 
@@ -95,7 +96,7 @@ std::vector<double> RangeSensor::readPacket(int timeout)
 int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
 {
 
-    if(buffer_size < 2) //throw std::runtime_error("Packet too small to contain range values.");
+    if(buffer_size < 2)
         return 0;
 
 
@@ -140,6 +141,16 @@ int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
 
 void RangeSensor::openURI(const string &uri)
 {
-    //stats.clear();
-    Driver::openURI(uri);
+    stats = ErrorStats();
+    iodrivers_base::Driver::openURI(uri);
+}
+
+const ErrorStats& RangeSensor::getErrors() const{
+    return stats;
+}
+double RangeSensor::getStartMeasuringRange() const{
+    return smr;
+}
+double RangeSensor::getMeasuringRange() const{
+    return mr;
 }
