@@ -41,7 +41,7 @@ double RangeSensor::rawToMeasurement(const uint8_t* buffer){
 
 std::vector<double> RangeSensor::readRanges(int timeout)
 {
-    size_t size = iodrivers_base::Driver::readPacket(
+    size_t size = readPacket(
             msg,
             LASER_PACKET_SIZE,
             base::Time::fromMilliseconds(timeout));
