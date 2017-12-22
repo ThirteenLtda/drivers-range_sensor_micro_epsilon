@@ -141,7 +141,7 @@ int RangeSensor::extractPacket(const uint8_t *buffer, size_t buffer_size) const
 
 void RangeSensor::openURI(const string &uri)
 {
-    stats.clear();
+    stats = ErrorStats();
     iodrivers_base::Driver::openURI(uri);
 }
 
